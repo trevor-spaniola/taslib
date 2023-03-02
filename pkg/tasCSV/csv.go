@@ -1,4 +1,4 @@
-package csv
+package tasCSV
 
 import (
 	"encoding/csv"
