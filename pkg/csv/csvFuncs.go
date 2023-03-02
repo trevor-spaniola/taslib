@@ -7,13 +7,13 @@ import (
 )
 
 /*
-WriteToCSV is a function that writes data to a .csv file. It requires the created file name, headers,
-number of rows, and the data to be stored in each row.
+WriteToCSV is a function that writes data to a .csv file. It requires the desired output file name,
+csv headers, number of rows/length of entries, and the data to be stored in each row.
 */
-func WriteToCSV(file string, headers []string, rowCount int, rowData [][]string) {
+func WriteToCSV(outputFile string, headers []string, rowCount int, rowData [][]string) {
 
 	// Create .csv file
-	csvFile, err := os.Create(file)
+	csvFile, err := os.Create(outputFile)
 	if err != nil {
 		log.Fatalln("[!] Error creating file:", err)
 	}
