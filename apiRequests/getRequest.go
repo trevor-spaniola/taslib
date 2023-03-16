@@ -7,6 +7,11 @@ import (
 	"net/http"
 )
 
+type Client struct {
+	AuthToken string
+	Client    *http.Client
+}
+
 /*
 GetApiRequestUserPass sends a GET request to the passed in API endpoint request, using
 Username and Password Basic Authentication. The API JSON response is returned in a slice of bytes.
@@ -42,7 +47,7 @@ func GetApiRequestUserPass(apiReq, apiUser, apiPass string) []byte {
 GetApiRequestToken sends a GET request to the passed in API endpoint request,
 using a Token for Basic Authentication. The API JSON response is returned in a slice of bytes.
 */
-func GetApiRequestToken(apiReq, apiToken string) []byte {
+func GetApiRequestToken(apiReq string, c Client) []byte {
 
 	req, err := http.NewRequest("GET", apiReq, nil)
 	if err != nil {
@@ -50,11 +55,11 @@ func GetApiRequestToken(apiReq, apiToken string) []byte {
 	}
 
 	// Authorization Token Basic Authentication
-	req.Header.Add("Authorization", "Bearer "+apiToken)
+	req.Header.Add("Authorization", "Bearer "+c.AuthToken)
 	req.Header.Set("Accept", "application/json")
 
 	// Submit GET request to API
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := c.Client.Do(req)
 	if err != nil {
 		log.Fatalln("[!] Error with GET request response for:", apiReq, "ERROR OUTPUT:", err)
 	}
@@ -111,12 +116,14 @@ GetApiRequestTokenInsecureSSL sends a GET request to the passed in API endpoint 
 using a Token for Basic Authentication, and ignore insecure SSL.
 The API JSON response is returned in a slice of bytes.
 */
-func GetApiRequestTokenInsecureSSL(apiReq, apiToken string) []byte {
+func GetApiRequestTokenInsecureSSL(apiReq string, c Client) []byte {
 
 	// For ignoring self-signed SSL cert
 	customTransport := http.DefaultTransport.(*http.Transport).Clone()
 	customTransport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	client := &http.Client{Transport: customTransport}
+
+	c.Client = client
 
 	req, err := http.NewRequest("GET", apiReq, nil)
 	if err != nil {
@@ -124,11 +131,11 @@ func GetApiRequestTokenInsecureSSL(apiReq, apiToken string) []byte {
 	}
 
 	// Authorization Token Basic Authentication
-	req.Header.Add("Authorization", "Bearer "+apiToken)
+	req.Header.Add("Authorization", "Bearer "+c.AuthToken)
 	req.Header.Set("Accept", "application/json")
 
 	// Submit GET request to API
-	resp, err := client.Do(req)
+	resp, err := c.Client.Do(req)
 	if err != nil {
 		log.Fatalln("[!] Error with GET request response for:", apiReq, "ERROR OUTPUT:", err)
 	}
